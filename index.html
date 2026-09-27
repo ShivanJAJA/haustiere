@@ -378,13 +378,20 @@
 
 <div id="toastBox"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase/2.45.4/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 /* ============================================================
    KONFIGURATION - Supabase Verbindung
    ============================================================ */
 const SUPABASE_URL = "https://glsvgiouazutefjquuwf.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdsc3ZnaW91YXp1dGVmanF1dXdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MTgyMDMsImV4cCI6MjEwNjA5NDIwM30.rCDh9IvDjKyTRN0rGvzvSHp7_Cf2JwK16Rq-18fRdAY";
+
+if(!window.supabase){
+  document.getElementById('authMsg').innerHTML =
+    '<div class="error-msg">Die Verbindungs-Bibliothek konnte nicht geladen werden. Bitte Seite neu laden (F5). Falls es weiterhin nicht klappt, prüfe deine Internetverbindung.</div>';
+  throw new Error('Supabase-Bibliothek nicht geladen');
+}
+
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /* ============================================================
