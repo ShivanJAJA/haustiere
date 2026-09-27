@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mein Fantasietier</title>
+<style>
+  :root{
+    --bg1:#2b1055;
+    --bg2:#7597de;
+    --card:#ffffff;
+    --ink:#2b2140;
+    --ink-soft:#6b6485;
+    --accent:#ff7ab8;
+    --accent2:#5ee0c2;
+    --accent3:#ffc857;
+    --danger:#ff6b6b;
+    --radius:22px;
+    font-family: 'Baloo 2', 'Comic Sans MS', system-ui, sans-serif;
+  }
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@600;700;800&display=swap');
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    background: radial-gradient(circle at 20% 0%, var(--bg2), var(--bg1) 70%);
+    color:var(--ink);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:24px 16px 60px;
+  }
+
+  h1,h2,h3{font-family:'Baloo 2', sans-serif; margin:0;}
+  p, label, button, input, select{font-family:'Nunito', sans-serif;}
+
+  .app{width:100%; max-width:480px;}
+
+  .title{
+    text-align:center;
+    color:white;
+    margin-bottom:18px;
+  }
+  .title h1{font-size:28px; text-shadow:0 3px 0 rgba(0,0,0,.15);}
+  .title span{opacity:.85; font-size:14px;}
+
+  .card{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:24px;
+    box-shadow:0 20px 40px rgba(20,10,50,.25);
+    margin-bottom:16px;
+  }
+
+  /* ---- LOGIN ---- */
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-weight:700; margin-bottom:6px; font-size:14px; color:var(--ink-soft);}
+  .field input, .field select{
+    width:100%;
+    padding:12px 14px;
+    border-radius:14px;
+    border:2px solid #e7e3f5;
+    font-size:16px;
+    outline:none;
+    transition:border-color .15s;
+  }
+  .field input:focus, .field select:focus{border-color:var(--accent2);}
+
+  .btn{
+    display:inline-block;
+    width:100%;
+    padding:14px;
+    border-radius:16px;
+    border:none;
+    font-weight:800;
+    font-size:16px;
+    cursor:pointer;
+    transition:transform .1s;
+    color:white;
+  }
+  .btn:active{transform:scale(.96);}
+  .btn-main{background:linear-gradient(135deg, #ff7ab8, #ff9d7a);}
+  .btn-alt{background:linear-gradient(135deg, #5ee0c2, #57c2ff); margin-top:8px;}
+  .btn-ghost{background:none; color:var(--ink-soft); font-weight:700; text-decoration:underline; box-shadow:none; padding:8px;}
+  .btn-small{width:auto; padding:10px 16px; font-size:14px; border-radius:12px;}
+
+  .switch-row{text-align:center; margin-top:12px; font-size:14px; color:var(--ink-soft);}
+  .switch-row a{color:var(--accent); font-weight:700; cursor:pointer; text-decoration:none;}
+
+  .error-msg{background:#ffe3e3; color:#c0392b; padding:10px 14px; border-radius:12px; font-size:14px; margin-bottom:14px; font-weight:700;}
+  .info-msg{background:#e3f9f0; color:#0e7d5f; padding:10px 14px; border-radius:12px; font-size:14px; margin-bottom:14px; font-weight:700;}
+
+  .namegen-row{display:flex; gap:8px;}
+  .namegen-row input{flex:1;}
+  .namegen-btn{
+    background:var(--accent3); border:none; border-radius:14px; padding:0 16px;
+    font-size:20px; cursor:pointer;
+  }
+
+  /* ---- PET STAGE ---- */
+  .pet-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;}
+  .pet-header h2{font-size:22px;}
+  .stage-badge{
+    background:var(--accent3); color:#5a4200; font-weight:800; font-size:12px;
+    padding:4px 12px; border-radius:20px;
+  }
+  .coins-badge{
+    display:flex; align-items:center; gap:6px; font-weight:800; color:#a6790a;
+    background:#fff6df; padding:6px 12px; border-radius:20px; font-size:14px;
+  }
+  .top-row{display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;}
+
+  .stage-wrap{
+    position:relative;
+    height:220px;
+    display:flex; align-items:center; justify-content:center;
+    margin: 6px 0 18px;
+  }
+  .pet-svg{width:190px; height:190px; filter:drop-shadow(0 12px 14px rgba(0,0,0,.18));}
+  .pet-svg.bounce{animation: bounce 2.4s ease-in-out infinite;}
+  @keyframes bounce{
+    0%,100%{transform:translateY(0) rotate(0deg);}
+    50%{transform:translateY(-10px) rotate(-2deg);}
+  }
+  .pet-name-big{text-align:center; font-size:20px; font-weight:800; margin-top:-4px;}
+
+  .stats{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:18px;}
+  .stat{}
+  .stat-label{display:flex; justify-content:space-between; font-size:13px; font-weight:700; color:var(--ink-soft); margin-bottom:4px;}
+  .stat-bar{height:14px; border-radius:10px; background:#eee6fb; overflow:hidden;}
+  .stat-fill{height:100%; border-radius:10px; transition:width .4s ease;}
+  .fill-hunger{background:linear-gradient(90deg,#ffb85e,#ff8a5c);}
+  .fill-happiness{background:linear-gradient(90deg,#ff8ac8,#ff5ea0);}
+  .fill-energy{background:linear-gradient(90deg,#63d9ff,#4aa7ff);}
+  .fill-sport{background:linear-gradient(90deg,#8bef9a,#4ec96a);}
+  .fill-clean{background:linear-gradient(90deg,#9ad7ff,#63a9ff);}
+  .fill-wisdom{background:linear-gradient(90deg,#c9a4ff,#9a6bff);}
+
+  .actions{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .action-btn{
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    padding:14px 8px;
+    border-radius:16px;
+    border:none;
+    background:#f4f1ff;
+    font-weight:800;
+    font-size:13px;
+    color:var(--ink);
+    cursor:pointer;
+    transition:transform .1s, background .15s;
+  }
+  .action-btn:active{transform:scale(.94);}
+  .action-btn .emoji{font-size:26px;}
+  .action-btn:hover{background:#eae4ff;}
+  .action-btn:disabled{opacity:.4; cursor:not-allowed;}
+
+  .minigames-title{margin:18px 0 10px; color:white; text-align:center; font-size:15px; opacity:.9;}
+  .game-list{display:flex; flex-direction:column; gap:10px;}
+  .game-item{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 16px;
+  }
+  .game-item .g-name{font-weight:800; font-size:15px;}
+  .game-item .g-desc{font-size:12px; color:var(--ink-soft); margin-top:2px;}
+
+  .logout-link{text-align:center; margin-top:6px;}
+  .logout-link a{color:rgba(255,255,255,.7); font-size:13px; cursor:pointer; text-decoration:underline;}
+
+  .welcome-back{
+    background:#fff6df; color:#8a6300; padding:12px 16px; border-radius:14px;
+    font-size:14px; font-weight:700; margin-bottom:16px; text-align:center;
+  }
+
+  /* Minigame overlay */
+  .overlay{
+    position:fixed; inset:0; background:rgba(20,10,45,.65);
+    display:flex; align-items:center; justify-content:center; padding:20px;
+    z-index:50;
+  }
+  .overlay .card{width:100%; max-width:420px; text-align:center;}
+  .game-area{
+    height:260px; position:relative; background:#f4f1ff; border-radius:16px; overflow:hidden;
+    margin:14px 0; touch-action:none;
+  }
+  .tap-target{
+    position:absolute; width:56px; height:56px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; font-size:28px;
+    border:none; cursor:pointer; background:var(--accent2);
+    box-shadow:0 6px 12px rgba(0,0,0,.15);
+  }
+  .memory-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; padding:10px;}
+  .memory-card{
+    aspect-ratio:1; border-radius:12px; background:var(--accent);
+    display:flex; align-items:center; justify-content:center; font-size:24px;
+    cursor:pointer; user-select:none; transition:transform .15s;
+  }
+  .memory-card.flipped, .memory-card.matched{background:white; border:2px solid var(--accent2);}
+  .memory-card.matched{opacity:.5;}
+  .quiz-q{font-size:17px; font-weight:800; margin:10px 0 16px;}
+  .quiz-opts{display:flex; flex-direction:column; gap:8px;}
+  .quiz-opt{
+    padding:12px; border-radius:12px; border:2px solid #eee6fb; background:white;
+    font-weight:700; cursor:pointer; font-size:15px;
+  }
+  .quiz-opt.correct{background:#d6f7e3; border-color:#4ec96a;}
+  .quiz-opt.wrong{background:#ffe0e0; border-color:#ff6b6b;}
+
+  .game-score{font-weight:800; font-size:15px; margin-bottom:4px;}
+  .hidden{display:none !important;}
+
+  .toast{
+    position:fixed; top:16px; left:50%; transform:translateX(-50%);
+    background:#2b2140; color:white; padding:10px 20px; border-radius:14px;
+    font-weight:700; font-size:14px; z-index:99; box-shadow:0 8px 20px rgba(0,0,0,.3);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .pet-svg.bounce{animation:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="title">
+    <h1>🐾 Mein Fantasietier</h1>
+    <span id="subtitle">Kümmere dich um dein eigenes Wesen</span>
+  </div>
+
+  <!-- ===== LOGIN / REGISTRIEREN ===== -->
+  <div class="card" id="authCard">
+    <div id="authMsg"></div>
+    <h2 id="authTitle" style="margin-bottom:16px;">Einloggen</h2>
+    <div class="field">
+      <label>E-Mail</label>
+      <input type="email" id="authEmail" placeholder="deine-email@beispiel.de">
+    </div>
+    <div class="field">
+      <label>Passwort</label>
+      <input type="password" id="authPass" placeholder="Mindestens 6 Zeichen">
+    </div>
+    <button class="btn btn-main" id="authSubmitBtn">Einloggen</button>
+    <div class="switch-row" id="authSwitchRow">
+      Noch keinen Account? <a id="authSwitchLink">Jetzt registrieren</a>
+    </div>
+  </div>
+
+  <!-- ===== TIER ERSTELLEN (nur beim ersten Mal) ===== -->
+  <div class="card hidden" id="createCard">
+    <h2 style="margin-bottom:16px;">Erschaffe dein Fantasietier!</h2>
+    <div class="field">
+      <label>Name des Tiers</label>
+      <div class="namegen-row">
+        <input type="text" id="petNameInput" placeholder="z.B. Flauschwicht" maxlength="18">
+        <button class="namegen-btn" id="randomNameBtn" title="Zufälligen Namen vorschlagen">🎲</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Farbe</label>
+      <select id="petColorSelect">
+        <option value="#7dd3c0">Türkis</option>
+        <option value="#ff9ec4">Rosa</option>
+        <option value="#ffd166">Gelb</option>
+        <option value="#a78bfa">Lila</option>
+        <option value="#7fb8ff">Blau</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Form</label>
+      <select id="petShapeSelect">
+        <option value="blob">Rundlich</option>
+        <option value="star">Sternig</option>
+        <option value="dino">Drachenartig</option>
+      </select>
+    </div>
+    <button class="btn btn-main" id="createPetBtn">Tier erschaffen!</button>
+  </div>
+
+  <!-- ===== HAUSTIER ANSICHT ===== -->
+  <div class="hidden" id="petSection">
+    <div id="welcomeBackMsg" class="welcome-back hidden"></div>
+
+    <div class="card">
+      <div class="top-row">
+        <span class="stage-badge" id="stageBadge">Baby</span>
+        <span class="coins-badge">🪙 <span id="coinCount">0</span></span>
+      </div>
+
+      <div class="stage-wrap">
+        <svg class="pet-svg bounce" id="petSvg" viewBox="0 0 200 200"></svg>
+      </div>
+      <div class="pet-name-big" id="petNameDisplay">—</div>
+
+      <div class="stats" style="margin-top:18px;">
+        <div class="stat">
+          <div class="stat-label"><span>🍎 Hunger</span><span id="v-hunger">0</span></div>
+          <div class="stat-bar"><div class="stat-fill fill-hunger" id="b-hunger"></div></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label"><span>😄 Glück</span><span id="v-happiness">0</span></div>
+          <div class="stat-bar"><div class="stat-fill fill-happiness" id="b-happiness"></div></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label"><span>⚡ Energie</span><span id="v-energy">0</span></div>
+          <div class="stat-bar"><div class="stat-fill fill-energy" id="b-energy"></div></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label"><span>🏃 Sport</span><span id="v-sport">0</span></div>
+          <div class="stat-bar"><div class="stat-fill fill-sport" id="b-sport"></div></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label"><span>🛁 Sauberkeit</span><span id="v-clean">0</span></div>
+          <div class="stat-bar"><div class="stat-fill fill-clean" id="b-clean"></div></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label"><span>📚 Wissen</span><span id="v-wisdom">0</span></div>
+          <div class="stat-bar"><div class="stat-fill fill-wisdom" id="b-wisdom"></div></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="action-btn" id="btnFeed"><span class="emoji">🍎</span>Füttern</button>
+        <button class="action-btn" id="btnPlay"><span class="emoji">🎾</span>Spielen</button>
+        <button class="action-btn" id="btnSleep"><span class="emoji">😴</span>Schlafen</button>
+        <button class="action-btn" id="btnWash"><span class="emoji">🛁</span>Waschen</button>
+      </div>
+    </div>
+
+    <div class="minigames-title">🎮 Minispiele – verdiene Münzen & Punkte</div>
+    <div class="game-list">
+      <button class="card game-item" id="gameReflex" style="width:100%; text-align:left; border:none;">
+        <div><div class="g-name">⚡ Blitz-Tipper</div><div class="g-desc">Tippe die Kreise + Energie & Sport</div></div>
+        <span>▶</span>
+      </button>
+      <button class="card game-item" id="gameMemory" style="width:100%; text-align:left; border:none;">
+        <div><div class="g-name">🧠 Merk-Karten</div><div class="g-desc">Finde die Paare + Wissen</div></div>
+        <span>▶</span>
+      </button>
+      <button class="card game-item" id="gameQuiz" style="width:100%; text-align:left; border:none;">
+        <div><div class="g-name">❓ Wissens-Quiz</div><div class="g-desc">Beantworte Fragen + Wissen & Glück</div></div>
+        <span>▶</span>
+      </button>
+    </div>
+
+    <div class="logout-link"><a id="logoutLink">Ausloggen</a></div>
+  </div>
+</div>
+
+<!-- ===== MINIGAME OVERLAYS ===== -->
+<div class="overlay hidden" id="reflexOverlay">
+  <div class="card">
+    <h3>⚡ Blitz-Tipper</h3>
+    <p class="game-score">Punkte: <span id="reflexScore">0</span> | Zeit: <span id="reflexTime">15</span>s</p>
+    <div class="game-area" id="reflexArea"></div>
+    <button class="btn btn-ghost" id="closeReflex">Schließen</button>
+  </div>
+</div>
+
+<div class="overlay hidden" id="memoryOverlay">
+  <div class="card">
+    <h3>🧠 Merk-Karten</h3>
+    <p class="game-score">Züge: <span id="memoryMoves">0</span></p>
+    <div class="memory-grid" id="memoryGrid"></div>
+    <button class="btn btn-ghost" id="closeMemory">Schließen</button>
+  </div>
+</div>
+
+<div class="overlay hidden" id="quizOverlay">
+  <div class="card">
+    <h3>❓ Wissens-Quiz</h3>
+    <p class="game-score">Frage <span id="quizNum">1</span>/5 · Richtig: <span id="quizScore">0</span></p>
+    <div class="quiz-q" id="quizQuestion"></div>
+    <div class="quiz-opts" id="quizOptions"></div>
+    <button class="btn btn-ghost hidden" id="closeQuiz">Schließen</button>
+  </div>
+</div>
+
+<div id="toastBox"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase/2.45.4/umd/supabase.min.js"></script>
+<script>
+/* ============================================================
+   KONFIGURATION - Supabase Verbindung
+   ============================================================ */
+const SUPABASE_URL = "https://glsvgiouazutefjquuwf.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdsc3ZnaW91YXp1dGVmanF1dXdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MTgyMDMsImV4cCI6MjEwNjA5NDIwM30.rCDh9IvDjKyTRN0rGvzvSHp7_Cf2JwK16Rq-18fRdAY";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* ============================================================
+   GLOBALER ZUSTAND
+   ============================================================ */
+let currentUser = null;
+let pet = null;
+let isRegisterMode = false;
+
+const NAME_PARTS_A = ["Flauschi","Glimmer","Wusel","Knuffel","Sternen","Nebel","Flitzer","Pusteblume","Krümel","Zauber"];
+const NAME_PARTS_B = ["wicht","fant","drache","schnute","flügel","wusel","hopser","stern","fell","funkel"];
+
+function randomPetName(){
+  const a = NAME_PARTS_A[Math.floor(Math.random()*NAME_PARTS_A.length)];
+  const b = NAME_PARTS_B[Math.floor(Math.random()*NAME_PARTS_B.length)];
+  return a + b;
+}
+
+function showToast(msg){
+  const box = document.getElementById('toastBox');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  box.appendChild(t);
+  setTimeout(()=>t.remove(), 2200);
+}
+
+function clamp(n){ return Math.max(0, Math.min(100, Math.round(n))); }
+
+/* ============================================================
+   AUTH: Login / Registrieren
+   ============================================================ */
+document.getElementById('authSwitchLink').addEventListener('click', ()=>{
+  isRegisterMode = !isRegisterMode;
+  document.getElementById('authTitle').textContent = isRegisterMode ? "Registrieren" : "Einloggen";
+  document.getElementById('authSubmitBtn').textContent = isRegisterMode ? "Account erstellen" : "Einloggen";
+  document.getElementById('authSwitchRow').innerHTML = isRegisterMode
+    ? 'Schon einen Account? <a id="authSwitchLink2">Jetzt einloggen</a>'
+    : 'Noch keinen Account? <a id="authSwitchLink2">Jetzt registrieren</a>';
+  document.getElementById('authSwitchLink2').addEventListener('click', ()=>{
+    document.getElementById('authSwitchLink').click();
+  });
+});
+
+document.getElementById('authSubmitBtn').addEventListener('click', async ()=>{
+  const email = document.getElementById('authEmail').value.trim();
+  const pass = document.getElementById('authPass').value;
+  const msgBox = document.getElementById('authMsg');
+  msgBox.innerHTML = '';
+
+  if(!email || !pass){
+    msgBox.innerHTML = '<div class="error-msg">Bitte E-Mail und Passwort eingeben.</div>';
+    return;
+  }
+  if(pass.length < 6){
+    msgBox.innerHTML = '<div class="error-msg">Das Passwort muss mindestens 6 Zeichen haben.</div>';
+    return;
+  }
+
+  if(isRegisterMode){
+    const { data, error } = await sb.auth.signUp({ email, password: pass });
+    if(error){
+      msgBox.innerHTML = `<div class="error-msg">${translateError(error.message)}</div>`;
+      return;
+    }
+    if(data.session){
+      currentUser = data.user;
+      afterLogin();
+    } else {
+      msgBox.innerHTML = '<div class="info-msg">Fast geschafft! Falls eine Bestätigung nötig ist, schau in dein E-Mail-Postfach. Danach kannst du dich einloggen.</div>';
+    }
+  } else {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+    if(error){
+      msgBox.innerHTML = `<div class="error-msg">${translateError(error.message)}</div>`;
+      return;
+    }
+    currentUser = data.user;
+    afterLogin();
+  }
+});
+
+function translateError(msg){
+  if(msg.includes('Invalid login')) return 'E-Mail oder Passwort ist falsch.';
+  if(msg.includes('already registered')) return 'Diese E-Mail hat schon einen Account. Logg dich ein!';
+  if(msg.includes('Password')) return 'Das Passwort muss mindestens 6 Zeichen haben.';
+  return 'Etwas ist schiefgelaufen: ' + msg;
+}
+
+document.getElementById('logoutLink').addEventListener('click', async ()=>{
+  await sb.auth.signOut();
+  location.reload();
+});
+
+/* ============================================================
+   NACH LOGIN: Tier laden oder Erstellung anzeigen
+   ============================================================ */
+async function afterLogin(){
+  document.getElementById('authCard').classList.add('hidden');
+
+  const { data, error } = await sb.from('pets').select('*').eq('user_id', currentUser.id).maybeSingle();
+
+  if(data){
+    pet = data;
+    applyOfflineTime();
+    document.getElementById('petSection').classList.remove('hidden');
+    renderPet();
+  } else {
+    document.getElementById('petNameInput').value = randomPetName();
+    document.getElementById('createCard').classList.remove('hidden');
+  }
+}
+
+document.getElementById('randomNameBtn').addEventListener('click', ()=>{
+  document.getElementById('petNameInput').value = randomPetName();
+});
+
+document.getElementById('createPetBtn').addEventListener('click', async ()=>{
+  const name = document.getElementById('petNameInput').value.trim() || randomPetName();
+  const color = document.getElementById('petColorSelect').value;
+  const shape = document.getElementById('petShapeSelect').value;
+
+  const newPet = {
+    user_id: currentUser.id,
+    name, color, shape,
+    stage:'baby', hunger:80, happiness:80, energy:80, sport:80, clean:80, wisdom:80, coins:0,
+    last_seen: new Date().toISOString()
+  };
+
+  const { data, error } = await sb.from('pets').insert(newPet).select().single();
+  if(error){
+    showToast('Fehler beim Erstellen 😕');
+    console.error(error);
+    return;
+  }
+  pet = data;
+  document.getElementById('createCard').classList.add('hidden');
+  document.getElementById('petSection').classList.remove('hidden');
+  renderPet();
+});
+
+/* ============================================================
+   ZEIT-SIMULATION: Was passiert seit dem letzten Login
+   ============================================================ */
+function applyOfflineTime(){
+  const lastSeen = new Date(pet.last_seen);
+  const now = new Date();
+  const hoursPassed = (now - lastSeen) / (1000*60*60);
+
+  if(hoursPassed < 0.02) return; // weniger als ~1 Minute -> nichts tun
+
+  // Werte sinken langsam über die Zeit (pro Stunde ein bisschen), gedeckelt damit es nicht zu hart wird
+  const decayPerHour = 3;
+  const maxHours = 24; // nach einem Tag Pause wird nicht "unendlich" bestraft
+  const effectiveHours = Math.min(hoursPassed, maxHours);
+  const drop = effectiveHours * decayPerHour;
+
+  pet.hunger = clamp(pet.hunger - drop);
+  pet.happiness = clamp(pet.happiness - drop*0.7);
+  pet.energy = clamp(pet.energy + drop*0.5); // Energie erholt sich beim "Schlafen" über Nacht
+  pet.sport = clamp(pet.sport - drop*0.6);
+  pet.clean = clamp(pet.clean - drop*0.5);
+  pet.wisdom = clamp(pet.wisdom - drop*0.2);
+
+  if(hoursPassed > 1){
+    showToast(`Willkommen zurück! Es ist Zeit vergangen, während du weg warst.`);
+    document.getElementById('welcomeBackMsg').textContent =
+      `⏰ Dein Tier hat auf dich gewartet! Kümmer dich wieder um es.`;
+    document.getElementById('welcomeBackMsg').classList.remove('hidden');
+  }
+
+  updateStage();
+  savePet();
+}
+
+function updateStage(){
+  const avg = (pet.hunger+pet.happiness+pet.energy+pet.sport+pet.clean+pet.wisdom)/6;
+  const ageScore = pet.coins; // Wachstum hängt an gesammelten Münzen (Fortschritt), nicht nur Zufall
+  if(ageScore >= 150 && avg >= 50){
+    pet.stage = 'erwachsen';
+  } else if(ageScore >= 50){
+    pet.stage = 'kind';
+  } else {
+    pet.stage = 'baby';
+  }
+}
+
+/* ============================================================
+   SPEICHERN in Supabase
+   ============================================================ */
+let saveTimeout = null;
+function savePet(){
+  pet.last_seen = new Date().toISOString();
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(async ()=>{
+    const { error } = await sb.from('pets').update({
+      name: pet.name, stage: pet.stage,
+      hunger: pet.hunger, happiness: pet.happiness, energy: pet.energy,
+      sport: pet.sport, clean: pet.clean, wisdom: pet.wisdom,
+      coins: pet.coins, color: pet.color, shape: pet.shape,
+      last_seen: pet.last_seen
+    }).eq('id', pet.id);
+    if(error) console.error('Speichern fehlgeschlagen', error);
+  }, 400);
+}
+
+/* ============================================================
+   RENDERN: Tier + Werte anzeigen
+   ============================================================ */
+function renderPet(){
+  document.getElementById('petNameDisplay').textContent = pet.name;
+  document.getElementById('coinCount').textContent = pet.coins;
+  const stageNames = {baby:'Baby', kind:'Kind', erwachsen:'Erwachsen'};
+  document.getElementById('stageBadge').textContent = stageNames[pet.stage] || 'Baby';
+
+  ['hunger','happiness','energy','sport','clean','wisdom'].forEach(key=>{
+    document.getElementById('v-'+key).textContent = pet[key];
+    document.getElementById('b-'+key).style.width = pet[key]+'%';
+  });
+
+  drawPetSvg();
+  updateActionAvailability();
+}
+
+function updateActionAvailability(){
+  document.getElementById('btnFeed').disabled = pet.hunger >= 98;
+  document.getElementById('btnSleep').disabled = pet.energy >= 98;
+  document.getElementById('btnWash').disabled = pet.clean >= 98;
+}
+
+/* Einfaches SVG-Fantasietier, das sich je nach Stimmung/Stufe leicht verändert */
+function drawPetSvg(){
+  const svg = document.getElementById('petSvg');
+  const color = pet.color;
+  const sizeScale = pet.stage === 'baby' ? 0.8 : pet.stage === 'kind' ? 0.92 : 1.0;
+  const sad = pet.happiness < 35;
+  const tired = pet.energy < 30;
+
+  const eyeShape = sad
+    ? `<path d="M75 95 Q80 105 85 95" stroke="#2b2140" stroke-width="4" fill="none" stroke-linecap="round"/>
+       <path d="M115 95 Q120 105 125 95" stroke="#2b2140" stroke-width="4" fill="none" stroke-linecap="round"/>`
+    : tired
+    ? `<line x1="72" y1="97" x2="88" y2="97" stroke="#2b2140" stroke-width="5" stroke-linecap="round"/>
+       <line x1="112" y1="97" x2="128" y2="97" stroke="#2b2140" stroke-width="5" stroke-linecap="round"/>`
+    : `<circle cx="80" cy="95" r="7" fill="#2b2140"/>
+       <circle cx="120" cy="95" r="7" fill="#2b2140"/>
+       <circle cx="82" cy="92" r="2.5" fill="white"/>
+       <circle cx="122" cy="92" r="2.5" fill="white"/>`;
+
+  const mouth = sad
+    ? `<path d="M85 120 Q100 110 115 120" stroke="#2b2140" stroke-width="4" fill="none" stroke-linecap="round"/>`
+    : `<path d="M85 115 Q100 130 115 115" stroke="#2b2140" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+
+  let bodyShape;
+  if(pet.shape === 'star'){
+    bodyShape = `<path d="M100 20 L118 75 L175 75 L128 108 L146 165 L100 128 L54 165 L72 108 L25 75 L82 75 Z" fill="${color}"/>`;
+  } else if(pet.shape === 'dino'){
+    bodyShape = `<path d="M100 30 C150 30 175 70 170 115 C165 160 135 175 100 175 C65 175 35 160 30 115 C25 70 50 30 100 30 Z
+                  M70 40 L85 15 L95 40 M105 40 L115 15 L130 40" fill="${color}"/>`;
+  } else {
+    bodyShape = `<ellipse cx="100" cy="110" rx="75" ry="65" fill="${color}"/>
+                 <circle cx="60" cy="60" r="18" fill="${color}"/>
+                 <circle cx="140" cy="60" r="18" fill="${color}"/>`;
+  }
+
+  svg.innerHTML = `
+    <g transform="translate(100 100) scale(${sizeScale}) translate(-100 -100)">
+      ${bodyShape}
+      ${eyeShape}
+      ${mouth}
+      <circle cx="70" cy="115" r="8" fill="${adjustColor(color,-20)}" opacity="0.5"/>
+      <circle cx="130" cy="115" r="8" fill="${adjustColor(color,-20)}" opacity="0.5"/>
+    </g>
+  `;
+}
+
+function adjustColor(hex, amt){
+  const num = parseInt(hex.slice(1),16);
+  let r = (num>>16) + amt, g = ((num>>8)&0xff) + amt, b = (num&0xff) + amt;
+  r = Math.max(0,Math.min(255,r)); g = Math.max(0,Math.min(255,g)); b = Math.max(0,Math.min(255,b));
+  return `rgb(${r},${g},${b})`;
+}
+
+/* ============================================================
+   AKTIONEN: Füttern, Spielen, Schlafen, Waschen
+   ============================================================ */
+document.getElementById('btnFeed').addEventListener('click', ()=>{
+  pet.hunger = clamp(pet.hunger + 25);
+  pet.happiness = clamp(pet.happiness + 5);
+  showToast('Lecker! 🍎');
+  updateStage(); renderPet(); savePet();
+});
+document.getElementById('btnPlay').addEventListener('click', ()=>{
+  pet.happiness = clamp(pet.happiness + 20);
+  pet.energy = clamp(pet.energy - 10);
+  pet.hunger = clamp(pet.hunger - 5);
+  showToast('Das war lustig! 🎾');
+  updateStage(); renderPet(); savePet();
+});
+document.getElementById('btnSleep').addEventListener('click', ()=>{
+  pet.energy = clamp(pet.energy + 30);
+  pet.hunger = clamp(pet.hunger - 5);
+  showToast('Ausgeschlafen! 😴');
+  updateStage(); renderPet(); savePet();
+});
+document.getElementById('btnWash').addEventListener('click', ()=>{
+  pet.clean = clamp(pet.clean + 30);
+  pet.happiness = clamp(pet.happiness + 5);
+  showToast('Sauber und frisch! 🛁');
+  updateStage(); renderPet(); savePet();
+});
+
+/* ============================================================
+   MINISPIEL 1: Blitz-Tipper (Reflex) -> Energie & Sport
+   ============================================================ */
+let reflexTimer, reflexCountdown, reflexScore = 0;
+document.getElementById('gameReflex').addEventListener('click', startReflexGame);
+document.getElementById('closeReflex').addEventListener('click', ()=>{
+  clearInterval(reflexTimer);
+  document.getElementById('reflexOverlay').classList.add('hidden');
+});
+
+function startReflexGame(){
+  reflexScore = 0;
+  let timeLeft = 15;
+  document.getElementById('reflexScore').textContent = 0;
+  document.getElementById('reflexTime').textContent = timeLeft;
+  const area = document.getElementById('reflexArea');
+  area.innerHTML = '';
+  document.getElementById('reflexOverlay').classList.remove('hidden');
+
+  spawnTarget();
+  reflexTimer = setInterval(()=>{
+    timeLeft--;
+    document.getElementById('reflexTime').textContent = timeLeft;
+    if(timeLeft <= 0){
+      clearInterval(reflexTimer);
+      endReflexGame();
+    }
+  }, 1000);
+}
+
+function spawnTarget(){
+  const area = document.getElementById('reflexArea');
+  area.innerHTML = '';
+  const btn = document.createElement('button');
+  btn.className = 'tap-target';
+  btn.textContent = '⭐';
+  const maxX = area.clientWidth - 56;
+  const maxY = area.clientHeight - 56;
+  btn.style.left = Math.random()*maxX + 'px';
+  btn.style.top = Math.random()*maxY + 'px';
+  btn.addEventListener('click', ()=>{
+    reflexScore++;
+    document.getElementById('reflexScore').textContent = reflexScore;
+    spawnTarget();
+  });
+  area.appendChild(btn);
+}
+
+function endReflexGame(){
+  document.getElementById('reflexOverlay').classList.add('hidden');
+  const coinsEarned = Math.round(reflexScore/2);
+  pet.energy = clamp(pet.energy - 10);
+  pet.sport = clamp(pet.sport + Math.min(30, reflexScore*3));
+  pet.happiness = clamp(pet.happiness + 10);
+  pet.coins += coinsEarned;
+  showToast(`Super! +${coinsEarned} Münzen, +Sport 🏃`);
+  updateStage(); renderPet(); savePet();
+}
+
+/* ============================================================
+   MINISPIEL 2: Merk-Karten (Memory) -> Wissen
+   ============================================================ */
+const MEMORY_EMOJIS = ['🍎','🎈','🌙','🦋','🍀','🔮','🌈','🎵'];
+let memoryState = [];
+let memoryFlipped = [];
+let memoryMoves = 0;
+let memoryMatches = 0;
+
+document.getElementById('gameMemory').addEventListener('click', startMemoryGame);
+document.getElementById('closeMemory').addEventListener('click', ()=>{
+  document.getElementById('memoryOverlay').classList.add('hidden');
+});
+
+function startMemoryGame(){
+  memoryFlipped = [];
+  memoryMoves = 0;
+  memoryMatches = 0;
+  document.getElementById('memoryMoves').textContent = 0;
+
+  const pairs = [...MEMORY_EMOJIS, ...MEMORY_EMOJIS];
+  memoryState = pairs.sort(()=>Math.random()-0.5).map(emoji=>({emoji, flipped:false, matched:false}));
+
+  renderMemoryGrid();
+  document.getElementById('memoryOverlay').classList.remove('hidden');
+}
+
+function renderMemoryGrid(){
+  const grid = document.getElementById('memoryGrid');
+  grid.innerHTML = '';
+  memoryState.forEach((cardData, idx)=>{
+    const card = document.createElement('div');
+    card.className = 'memory-card' + (cardData.flipped||cardData.matched ? ' flipped' : '');
+    if(cardData.matched) card.classList.add('matched');
+    card.textContent = (cardData.flipped||cardData.matched) ? cardData.emoji : '❓';
+    card.addEventListener('click', ()=>flipMemoryCard(idx));
+    grid.appendChild(card);
+  });
+}
+
+function flipMemoryCard(idx){
+  const c = memoryState[idx];
+  if(c.flipped || c.matched || memoryFlipped.length >= 2) return;
+
+  c.flipped = true;
+  memoryFlipped.push(idx);
+  renderMemoryGrid();
+
+  if(memoryFlipped.length === 2){
+    memoryMoves++;
+    document.getElementById('memoryMoves').textContent = memoryMoves;
+    const [i1, i2] = memoryFlipped;
+    if(memoryState[i1].emoji === memoryState[i2].emoji){
+      memoryState[i1].matched = true;
+      memoryState[i2].matched = true;
+      memoryFlipped = [];
+      memoryMatches++;
+      renderMemoryGrid();
+      if(memoryMatches === MEMORY_EMOJIS.length){
+        setTimeout(endMemoryGame, 500);
+      }
+    } else {
+      setTimeout(()=>{
+        memoryState[i1].flipped = false;
+        memoryState[i2].flipped = false;
+        memoryFlipped = [];
+        renderMemoryGrid();
+      }, 800);
+    }
+  }
+}
+
+function endMemoryGame(){
+  document.getElementById('memoryOverlay').classList.add('hidden');
+  const efficiency = Math.max(0, 20 - memoryMoves);
+  const coinsEarned = 5 + efficiency;
+  pet.wisdom = clamp(pet.wisdom + 25);
+  pet.happiness = clamp(pet.happiness + 10);
+  pet.coins += coinsEarned;
+  showToast(`Klasse gemerkt! +${coinsEarned} Münzen, +Wissen 📚`);
+  updateStage(); renderPet(); savePet();
+}
+
+/* ============================================================
+   MINISPIEL 3: Wissens-Quiz -> Wissen & Glück
+   ============================================================ */
+const QUIZ_QUESTIONS = [
+  {q:"Wie viele Beine hat eine Spinne?", opts:["6","8","10","4"], correct:1},
+  {q:"Welches Tier ist das größte Landtier der Welt?", opts:["Nashorn","Giraffe","Elefant","Nilpferd"], correct:2},
+  {q:"Wie viele Farben hat ein Regenbogen normalerweise?", opts:["5","6","7","8"], correct:2},
+  {q:"Was brauchen Pflanzen zum Wachsen unbedingt?", opts:["Musik","Sonnenlicht","Schnee","Sand"], correct:1},
+  {q:"Wie viele Kontinente gibt es auf der Erde?", opts:["5","6","7","9"], correct:2},
+  {q:"Welcher Planet ist der Erde am nächsten?", opts:["Mars","Venus","Jupiter","Saturn"], correct:1},
+  {q:"Was ist die Hauptstadt von Deutschland?", opts:["München","Hamburg","Berlin","Köln"], correct:2},
+  {q:"Wie viele Zähne hat ein Hai ungefähr im Laufe seines Lebens?", opts:["Dutzende","Hunderte","Tausende","Nur 32"], correct:2}
+];
+let quizIndex = 0, quizScore = 0, quizSet = [];
+
+document.getElementById('gameQuiz').addEventListener('click', startQuizGame);
+document.getElementById('closeQuiz').addEventListener('click', ()=>{
+  document.getElementById('quizOverlay').classList.add('hidden');
+});
+
+function startQuizGame(){
+  quizIndex = 0;
+  quizScore = 0;
+  quizSet = [...QUIZ_QUESTIONS].sort(()=>Math.random()-0.5).slice(0,5);
+  document.getElementById('closeQuiz').classList.add('hidden');
+  document.getElementById('quizOverlay').classList.remove('hidden');
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion(){
+  document.getElementById('quizNum').textContent = quizIndex+1;
+  document.getElementById('quizScore').textContent = quizScore;
+  const item = quizSet[quizIndex];
+  document.getElementById('quizQuestion').textContent = item.q;
+  const optsBox = document.getElementById('quizOptions');
+  optsBox.innerHTML = '';
+  item.opts.forEach((opt, i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.addEventListener('click', ()=>answerQuiz(i, btn));
+    optsBox.appendChild(btn);
+  });
+}
+
+function answerQuiz(i, btnEl){
+  const item = quizSet[quizIndex];
+  const allBtns = document.querySelectorAll('.quiz-opt');
+  allBtns.forEach(b=>b.style.pointerEvents = 'none');
+
+  if(i === item.correct){
+    btnEl.classList.add('correct');
+    quizScore++;
+  } else {
+    btnEl.classList.add('wrong');
+    allBtns[item.correct].classList.add('correct');
+  }
+
+  setTimeout(()=>{
+    quizIndex++;
+    if(quizIndex < quizSet.length){
+      renderQuizQuestion();
+    } else {
+      endQuizGame();
+    }
+  }, 1000);
+}
+
+function endQuizGame(){
+  document.getElementById('quizQuestion').textContent = `Fertig! Du hattest ${quizScore} von ${quizSet.length} richtig! 🎉`;
+  document.getElementById('quizOptions').innerHTML = '';
+  document.getElementById('closeQuiz').classList.remove('hidden');
+
+  const coinsEarned = quizScore * 4;
+  pet.wisdom = clamp(pet.wisdom + quizScore*8);
+  pet.happiness = clamp(pet.happiness + quizScore*4);
+  pet.coins += coinsEarned;
+  showToast(`+${coinsEarned} Münzen, +Wissen & Glück!`);
+  updateStage(); renderPet(); savePet();
+}
+
+/* ============================================================
+   START: Prüfen ob bereits eingeloggt
+   ============================================================ */
+(async function init(){
+  const { data: { session } } = await sb.auth.getSession();
+  if(session){
+    currentUser = session.user;
+    afterLogin();
+  }
+})();
+</script>
+</body>
+</html>
